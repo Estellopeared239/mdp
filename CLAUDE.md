@@ -24,20 +24,23 @@ A CLI tool that renders markdown files in a native frameless window. Designed fo
 
 ```bash
 # Download vendored JS dependencies (first time only)
-./scripts/download-deps.sh
+make deps
 
-# Build
-go build -o md-preview-cli .
+# Debug build — includes debug symbols, version="dev" (~21 MB)
+make build
+
+# Release build — stripped symbols, version from git (~16 MB)
+make release
 
 # Run
-./md-preview-cli testdata/full-spec.md
-echo "# Hello" | ./md-preview-cli
+./bin/md-preview-cli testdata/full-spec.md
+echo "# Hello" | ./bin/md-preview-cli
 ```
 
 ## Testing
 
 ```bash
-go test ./...
+make test
 go test -v ./internal/renderer/...
 ```
 

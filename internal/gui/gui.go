@@ -7,7 +7,6 @@ import (
 	osexec "os/exec"
 	"os/signal"
 	"path/filepath"
-	"runtime"
 	"syscall"
 
 	"github.com/mxcoppell/md-preview-cli/internal/renderer"
@@ -164,14 +163,5 @@ func rendererTOCToServer(entries []renderer.TOCEntry) []server.TOCEntry {
 }
 
 func openBrowser(url string) error {
-	var cmd *osexec.Cmd
-	switch runtime.GOOS {
-	case "darwin":
-		cmd = osexec.Command("open", url)
-	case "linux":
-		cmd = osexec.Command("xdg-open", url)
-	default:
-		return fmt.Errorf("unsupported platform %s", runtime.GOOS)
-	}
-	return cmd.Start()
+	return osexec.Command("open", url).Start()
 }
