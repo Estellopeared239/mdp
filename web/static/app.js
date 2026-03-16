@@ -483,7 +483,11 @@
     // ─── Toolbar Buttons ──────────────────────────────────────
     document.getElementById('theme-toggle').addEventListener('click', cycleTheme);
     document.getElementById('close-btn').addEventListener('click', function() {
-        fetch('/api/shutdown', { method: 'POST' }).catch(function() {});
+        if (typeof window.closeThisWindow === 'function') {
+            window.closeThisWindow();
+        } else {
+            fetch('/api/shutdown', { method: 'POST' }).catch(function() {});
+        }
     });
 
     // ─── Window Drag ──────────────────────────────────────────
@@ -565,7 +569,11 @@
             } else if (!searchBar.classList.contains('hidden')) {
                 closeSearch();
             } else {
-                fetch('/api/shutdown', { method: 'POST' }).catch(function() {});
+                if (typeof window.closeThisWindow === 'function') {
+                    window.closeThisWindow();
+                } else {
+                    fetch('/api/shutdown', { method: 'POST' }).catch(function() {});
+                }
             }
             return;
         }

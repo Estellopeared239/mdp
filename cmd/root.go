@@ -12,6 +12,7 @@ import (
 	"golang.org/x/term"
 
 	"github.com/mxcoppell/md-preview-cli/internal/gui"
+	"github.com/mxcoppell/md-preview-cli/internal/ipc"
 	"github.com/mxcoppell/md-preview-cli/internal/renderer"
 	"github.com/mxcoppell/md-preview-cli/internal/version"
 )
@@ -170,6 +171,75 @@ func run(cfg Config) error {
 }
 
 func spawnGUI(cfg gui.Config, wait bool) error {
+	// Browser mode: standalone server, no dock icon needed
+	if cfg.Browser {
+		return spawnBrowserMode(cfg, wait)
+	}
+
+	// Try IPC to existing host first
+	if trySendIPC(cfg) {
+		return nil
+	}
+
+	// No host running — spawn one
+	return spawnHostProcess(cfg, wait)
+}
+
+// trySendIPC attempts to connect to an existing host and send the config.
+func trySendIPC(cfg gui.Config) bool {
+	conn, err := ipc.Dial()
+	if err != nil {
+		return false
+	}
+	defer conn.Close()
+
+	tmpPath, err := gui.WriteConfig(cfg)
+	if err != nil {
+		return false
+	}
+
+	resp, err := ipc.SendOpen(conn, tmpPath)
+	if err != nil {
+		os.Remove(tmpPath)
+		return false
+	}
+	if !resp.OK {
+		fmt.Fprintf(os.Stderr, "md-preview-cli: host error: %s\n", resp.Error)
+		return false
+	}
+	return true
+}
+
+// spawnHostProcess starts a new host process with the initial config.
+func spawnHostProcess(cfg gui.Config, wait bool) error {
+	ipc.CleanStaleSocket()
+
+	tmpPath, err := gui.WriteConfig(cfg)
+	if err != nil {
+		return fmt.Errorf("writing GUI config: %w", err)
+	}
+
+	exePath, err := os.Executable()
+	if err != nil {
+		return fmt.Errorf("finding executable: %w", err)
+	}
+
+	cmd := exec.Command(exePath, "--internal-host="+tmpPath)
+	cmd.Stderr = os.Stderr
+	if err := cmd.Start(); err != nil {
+		os.Remove(tmpPath)
+		return fmt.Errorf("spawning host: %w", err)
+	}
+
+	if wait {
+		return cmd.Wait()
+	}
+
+	return nil
+}
+
+// spawnBrowserMode starts the legacy single-process GUI for --browser mode.
+func spawnBrowserMode(cfg gui.Config, wait bool) error {
 	tmpPath, err := gui.WriteConfig(cfg)
 	if err != nil {
 		return fmt.Errorf("writing GUI config: %w", err)

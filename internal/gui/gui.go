@@ -149,19 +149,6 @@ func toServerTOC(entries []TOCEntry) []server.TOCEntry {
 	return result
 }
 
-func rendererTOCToServer(entries []renderer.TOCEntry) []server.TOCEntry {
-	result := make([]server.TOCEntry, len(entries))
-	for i, e := range entries {
-		result[i] = server.TOCEntry{
-			ID:       e.ID,
-			Text:     e.Text,
-			Level:    e.Level,
-			Children: rendererTOCToServer(e.Children),
-		}
-	}
-	return result
-}
-
 func openBrowser(url string) error {
 	return osexec.Command("open", url).Start()
 }
