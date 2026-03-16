@@ -244,6 +244,14 @@ func (h *Host) createWindow(cfg Config) (string, error) {
 }
 
 // CloseWindow closes a single window and its resources.
+//
+// We close the native NSWindow directly instead of calling webview.Destroy().
+// Destroy() internally calls deplete_run_loop_event_queue() which posts a probe
+// to the GCD main queue and spins waiting for it. But CloseWindow is always
+// invoked from a GCD main queue block (via Dispatch), and the GCD main queue is
+// serial — the probe can never fire while the current block is executing.
+// This causes a deadlock: the first window close hangs in deplete, blocking all
+// subsequent GCD blocks (including further close requests).
 func (h *Host) CloseWindow(id string) {
 	h.mu.Lock()
 	entry, ok := h.windows[id]
@@ -260,28 +268,18 @@ func (h *Host) CloseWindow(id string) {
 	entry.Cancel()
 	entry.Server.Shutdown()
 
+	// Close the native NSWindow directly (bypasses webview destructor's deadlock).
+	closeWindow(entry.Webview.Window())
+
 	if remaining == 0 {
-		// Last window: stop the run loop
-		if isPrimary {
-			h.primaryWV.Terminate()
-		} else {
-			entry.Webview.Destroy()
-			h.primaryWV.Terminate()
+		stopRunLoop()
+	} else if isPrimary {
+		h.mu.Lock()
+		for _, e := range h.windows {
+			h.primaryWV = e.Webview
+			break
 		}
-	} else {
-		// Not the last window: just close this one
-		if isPrimary {
-			// Primary is closing but others remain — pick a new primary
-			h.mu.Lock()
-			for _, e := range h.windows {
-				h.primaryWV = e.Webview
-				break
-			}
-			h.mu.Unlock()
-			entry.Webview.Destroy()
-		} else {
-			entry.Webview.Destroy()
-		}
+		h.mu.Unlock()
 	}
 }
 
@@ -333,7 +331,7 @@ func (h *Host) WindowCount() int {
 	return len(h.windows)
 }
 
-// WindowList returns ordered window IDs and filenames.
+// WindowList returns a snapshot of all window entries.
 func (h *Host) WindowList() []WindowEntry {
 	h.mu.Lock()
 	defer h.mu.Unlock()

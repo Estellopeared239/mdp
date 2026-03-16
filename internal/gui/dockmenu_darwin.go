@@ -32,7 +32,7 @@ extern void goDockMenuQuit(void);
     NSMenu *menu = [[NSMenu alloc] init];
     int count = goGetWindowCount();
 
-    // Window list section
+    // Per-window: primary activate item + alternate close item
     for (int i = 0; i < count; i++) {
         const char *cTitle = goGetWindowTitle(i);
         const char *cID = goGetWindowID(i);
@@ -41,39 +41,26 @@ extern void goDockMenuQuit(void);
         NSString *title = [NSString stringWithUTF8String:cTitle];
         NSString *wid = [NSString stringWithUTF8String:cID];
 
-        NSMenuItem *item = [[NSMenuItem alloc]
+        // Primary item — click to activate window
+        NSMenuItem *activateItem = [[NSMenuItem alloc]
             initWithTitle:title
             action:@selector(activateWindowAction:)
             keyEquivalent:@""];
-        item.target = self;
-        item.representedObject = wid;
-        [menu addItem:item];
+        activateItem.target = self;
+        activateItem.representedObject = wid;
+        [menu addItem:activateItem];
 
-        free((void *)cTitle);
-        free((void *)cID);
-    }
-
-    if (count > 0) {
-        [menu addItem:[NSMenuItem separatorItem]];
-    }
-
-    // Close window section
-    for (int i = 0; i < count; i++) {
-        const char *cTitle = goGetWindowTitle(i);
-        const char *cID = goGetWindowID(i);
-        if (!cTitle || !cID) continue;
-
-        NSString *title = [NSString stringWithFormat:@"Close %@",
-            [NSString stringWithUTF8String:cTitle]];
-        NSString *wid = [NSString stringWithUTF8String:cID];
-
-        NSMenuItem *item = [[NSMenuItem alloc]
-            initWithTitle:title
+        // Alternate item — Option+click to close window
+        NSString *closeTitle = [NSString stringWithFormat:@"Close %@", title];
+        NSMenuItem *closeItem = [[NSMenuItem alloc]
+            initWithTitle:closeTitle
             action:@selector(closeWindowAction:)
             keyEquivalent:@""];
-        item.target = self;
-        item.representedObject = wid;
-        [menu addItem:item];
+        closeItem.target = self;
+        closeItem.representedObject = wid;
+        closeItem.alternate = YES;
+        closeItem.keyEquivalentModifierMask = NSEventModifierFlagOption;
+        [menu addItem:closeItem];
 
         free((void *)cTitle);
         free((void *)cID);
@@ -90,14 +77,6 @@ extern void goDockMenuQuit(void);
         keyEquivalent:@""];
     openItem.target = self;
     [menu addItem:openItem];
-
-    // Quit
-    NSMenuItem *quitItem = [[NSMenuItem alloc]
-        initWithTitle:@"Quit"
-        action:@selector(quitAction:)
-        keyEquivalent:@""];
-    quitItem.target = self;
-    [menu addItem:quitItem];
 
     return menu;
 }
@@ -134,10 +113,6 @@ extern void goDockMenuQuit(void);
     }];
 }
 
-- (void)quitAction:(NSMenuItem *)sender {
-    goDockMenuQuit();
-}
-
 @end
 
 static void guiInitHostMode(void) {
@@ -146,10 +121,32 @@ static void guiInitHostMode(void) {
     [NSApp setDelegate:[[HostDelegate alloc] init]];
     [NSApp activateIgnoringOtherApps:YES];
 }
+
+// Stop the NSApp run loop without needing a valid webview pointer.
+// Mirrors the webview library's stop_run_loop() logic.
+static void guiStopRunLoop(void) {
+    [NSApp stop:nil];
+    // Post a synthetic event so the run loop wakes up and sees the stop flag.
+    NSEvent *event = [NSEvent otherEventWithType:NSEventTypeApplicationDefined
+                                        location:NSMakePoint(0, 0)
+                                   modifierFlags:0
+                                       timestamp:0
+                                    windowNumber:0
+                                         context:nil
+                                         subtype:0
+                                           data1:0
+                                           data2:0];
+    [NSApp postEvent:event atStart:YES];
+}
 */
 import "C"
 
 func initHostMode() {
 	C.guiInitHostMode()
 	setDockIcon()
+}
+
+// stopRunLoop stops the NSApp event loop without needing a valid webview.
+func stopRunLoop() {
+	C.guiStopRunLoop()
 }

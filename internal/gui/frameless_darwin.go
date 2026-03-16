@@ -127,6 +127,17 @@ void guiActivateWindow(void *window) {
     [NSApp activateIgnoringOtherApps:YES];
 }
 
+// Close an NSWindow directly without going through webview's destructor.
+// webview.Destroy() calls deplete_run_loop_event_queue() which deadlocks
+// when called from within a GCD main queue block (the probe it posts to the
+// serial GCD queue can't fire while the current block is still executing).
+// This bypasses that by just closing the native window.
+void guiCloseWindow(void *window) {
+    NSWindow *nsWindow = (NSWindow *)window;
+    [nsWindow setDelegate:nil];
+    [nsWindow close];
+}
+
 // Legacy: schedule frameless via timer (used by gui.Run single-window path)
 static int _frameless_applied = 0;
 static void *_pending_frameless_window = NULL;
@@ -193,4 +204,8 @@ func resizeWindowBy(windowHandle unsafe.Pointer, dw, dh, shiftX int) {
 
 func activateWindow(windowHandle unsafe.Pointer) {
 	C.guiActivateWindow(windowHandle)
+}
+
+func closeWindow(windowHandle unsafe.Pointer) {
+	C.guiCloseWindow(windowHandle)
 }

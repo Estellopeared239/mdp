@@ -5,38 +5,37 @@ package gui
 import "C"
 import "unsafe"
 
+// menuSnapshot holds the window list captured by goGetWindowCount so that
+// subsequent goGetWindowTitle/goGetWindowID calls index into the same slice.
+// All three are called sequentially on the main thread during dock menu build.
+var menuSnapshot []WindowEntry
+
 //export goGetWindowCount
 func goGetWindowCount() C.int {
 	if activeHost == nil {
+		menuSnapshot = nil
 		return 0
 	}
-	return C.int(activeHost.WindowCount())
+	menuSnapshot = activeHost.WindowList()
+	return C.int(len(menuSnapshot))
 }
 
 //export goGetWindowID
 func goGetWindowID(index C.int) *C.char {
-	if activeHost == nil {
-		return nil
-	}
-	list := activeHost.WindowList()
 	i := int(index)
-	if i < 0 || i >= len(list) {
+	if i < 0 || i >= len(menuSnapshot) {
 		return nil
 	}
-	return C.CString(list[i].ID)
+	return C.CString(menuSnapshot[i].ID)
 }
 
 //export goGetWindowTitle
 func goGetWindowTitle(index C.int) *C.char {
-	if activeHost == nil {
-		return nil
-	}
-	list := activeHost.WindowList()
 	i := int(index)
-	if i < 0 || i >= len(list) {
+	if i < 0 || i >= len(menuSnapshot) {
 		return nil
 	}
-	return C.CString(list[i].Filename)
+	return C.CString(menuSnapshot[i].Filename)
 }
 
 //export goDockMenuActivate
