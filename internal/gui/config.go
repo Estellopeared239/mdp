@@ -32,6 +32,7 @@ type Config struct {
 	HasMath    bool          `json:"has_math"`
 	HasMermaid bool          `json:"has_mermaid"`
 	WordCount  int           `json:"word_count"`
+	Verbose    bool          `json:"verbose"`
 }
 
 // WriteConfig serializes cfg to a temp JSON file and returns the path.

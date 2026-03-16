@@ -38,6 +38,7 @@ func Run(cfgPath string) error {
 		HasMermaid: cfg.HasMermaid,
 		WordCount:  cfg.WordCount,
 		NoWatch:    cfg.NoWatch,
+		Verbose:    cfg.Verbose,
 	})
 
 	addr, err := srv.Start(ctx)
@@ -45,7 +46,9 @@ func Run(cfgPath string) error {
 		return fmt.Errorf("starting server: %w", err)
 	}
 	url := fmt.Sprintf("http://%s", addr)
-	fmt.Fprintf(os.Stderr, "md-preview-cli: listening on %s (%s)\n", url, cfg.Filename)
+	if cfg.Verbose {
+		fmt.Fprintf(os.Stderr, "md-preview-cli: listening on %s (%s)\n", url, cfg.Filename)
+	}
 
 	// Browser mode: open in system browser instead of webview
 	if cfg.Browser {
@@ -92,7 +95,9 @@ func Run(cfgPath string) error {
 	w.Run()
 
 	// Clean up
-	fmt.Fprintf(os.Stderr, "md-preview-cli: shutting down\n")
+	if cfg.Verbose {
+		fmt.Fprintf(os.Stderr, "md-preview-cli: shutting down\n")
+	}
 	srv.Shutdown()
 	srv.Wait()
 	return nil

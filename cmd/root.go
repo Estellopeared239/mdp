@@ -28,6 +28,7 @@ type Config struct {
 	ShowTOC bool
 	Browser bool
 	Wait    bool
+	Verbose bool
 	Files   []string
 	IsStdin bool
 }
@@ -67,6 +68,7 @@ func parseFlags(args []string, stdin *os.File) (Config, error) {
 	fs.BoolVar(&cfg.Browser, "browser", false, "")
 	fs.BoolVar(&cfg.Wait, "wait", false, "")
 	fs.BoolVar(&showVersion, "version", false, "")
+	fs.BoolVar(&cfg.Verbose, "verbose", false, "")
 	fs.BoolVar(&showVersion, "v", false, "")
 
 	var showHelp bool
@@ -160,6 +162,7 @@ func run(cfg Config) error {
 			HasMath:    result.HasMath,
 			HasMermaid: result.HasMermaid,
 			WordCount:  result.WordCount,
+			Verbose:    cfg.Verbose,
 		}
 
 		if err := spawnGUI(guiCfg, cfg.Wait); err != nil {
@@ -293,6 +296,7 @@ FLAGS:
         --toc             Show table of contents sidebar on startup
         --browser         Force open in system browser (no native window)
         --wait            Block until preview window is closed
+        --verbose         Show informational messages on stderr
     -v, --version         Print version
     -h, --help            Print help
 

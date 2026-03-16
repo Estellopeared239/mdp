@@ -35,6 +35,7 @@ type Config struct {
 	HasMermaid bool
 	WordCount  int
 	NoWatch    bool
+	Verbose    bool
 }
 
 // Server is the HTTP server for md-preview-cli.

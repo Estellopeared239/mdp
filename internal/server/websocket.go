@@ -79,7 +79,9 @@ func (h *WSHub) removeConn(conn *websocket.Conn) {
 			count := len(h.conns)
 			h.mu.Unlock()
 			if count == 0 {
-				fmt.Fprintf(os.Stderr, "md-preview-cli: no clients connected, shutting down\n")
+				if h.server.cfg.Verbose {
+					fmt.Fprintf(os.Stderr, "md-preview-cli: no clients connected, shutting down\n")
+				}
 				h.server.Shutdown()
 			}
 		})

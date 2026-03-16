@@ -29,6 +29,7 @@ type Host struct {
 	ipcSrv    *ipc.Server
 	ctx       context.Context
 	cancel    context.CancelFunc
+	verbose   bool
 }
 
 // WindowEntry tracks a single preview window and its resources.
@@ -57,6 +58,7 @@ func RunHost(cfgPath string) error {
 		windows: make(map[string]*WindowEntry),
 		ctx:     ctx,
 		cancel:  cancel,
+		verbose: cfg.Verbose,
 	}
 	activeHost = h
 
@@ -91,7 +93,9 @@ func RunHost(cfgPath string) error {
 	h.primaryWV.Run()
 
 	// Cleanup
-	fmt.Fprintf(os.Stderr, "md-preview-cli: shutting down\n")
+	if h.verbose {
+		fmt.Fprintf(os.Stderr, "md-preview-cli: shutting down\n")
+	}
 	ipcSrv.Close()
 	h.shutdownAllServers()
 	return nil
@@ -157,6 +161,7 @@ func (h *Host) createWindow(cfg Config) (string, error) {
 		HasMermaid: cfg.HasMermaid,
 		WordCount:  cfg.WordCount,
 		NoWatch:    cfg.NoWatch,
+		Verbose:    h.verbose,
 	})
 
 	addr, err := srv.Start(wCtx)
@@ -165,7 +170,9 @@ func (h *Host) createWindow(cfg Config) (string, error) {
 		return "", fmt.Errorf("starting server: %w", err)
 	}
 	url := fmt.Sprintf("http://%s", addr)
-	fmt.Fprintf(os.Stderr, "md-preview-cli: listening on %s (%s)\n", url, cfg.Filename)
+	if h.verbose {
+		fmt.Fprintf(os.Stderr, "md-preview-cli: listening on %s (%s)\n", url, cfg.Filename)
+	}
 
 	// Start file watchers
 	startFileWatchersWithCtx(wCtx, cfg, srv)
