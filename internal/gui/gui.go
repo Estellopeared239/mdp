@@ -9,9 +9,9 @@ import (
 	"path/filepath"
 	"syscall"
 
-	"github.com/mxcoppell/md-preview-cli/internal/renderer"
-	"github.com/mxcoppell/md-preview-cli/internal/server"
-	"github.com/mxcoppell/md-preview-cli/internal/watcher"
+	"github.com/mxcoppell/mdp/internal/renderer"
+	"github.com/mxcoppell/mdp/internal/server"
+	"github.com/mxcoppell/mdp/internal/watcher"
 )
 
 // Run is the GUI process entry point. It reads the config from the temp file,
@@ -47,7 +47,7 @@ func Run(cfgPath string) error {
 	}
 	url := fmt.Sprintf("http://%s", addr)
 	if cfg.Verbose {
-		fmt.Fprintf(os.Stderr, "md-preview-cli: listening on %s (%s)\n", url, cfg.Filename)
+		fmt.Fprintf(os.Stderr, "mdp: listening on %s (%s)\n", url, cfg.Filename)
 	}
 
 	// Browser mode: open in system browser instead of webview
@@ -96,7 +96,7 @@ func Run(cfgPath string) error {
 
 	// Clean up
 	if cfg.Verbose {
-		fmt.Fprintf(os.Stderr, "md-preview-cli: shutting down\n")
+		fmt.Fprintf(os.Stderr, "mdp: shutting down\n")
 	}
 	srv.Shutdown()
 	srv.Wait()
@@ -111,7 +111,7 @@ func startFileWatchers(ctx context.Context, cfg Config, srv *server.Server) {
 	for _, file := range cfg.WatchFiles {
 		absPath, err := filepath.Abs(file)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "md-preview-cli: resolve path error (%s): %v\n", file, err)
+			fmt.Fprintf(os.Stderr, "mdp: resolve path error (%s): %v\n", file, err)
 			continue
 		}
 
@@ -121,14 +121,14 @@ func startFileWatchers(ctx context.Context, cfg Config, srv *server.Server) {
 		} else {
 			w, err = watcher.NewFileWatcher(absPath)
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "md-preview-cli: watcher error (%s): %v\n", file, err)
+				fmt.Fprintf(os.Stderr, "mdp: watcher error (%s): %v\n", file, err)
 				continue
 			}
 		}
 
 		go func() {
 			if err := w.Start(ctx); err != nil {
-				fmt.Fprintf(os.Stderr, "md-preview-cli: watcher error: %v\n", err)
+				fmt.Fprintf(os.Stderr, "mdp: watcher error: %v\n", err)
 			}
 		}()
 

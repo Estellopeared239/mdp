@@ -15,7 +15,7 @@ func TestSocketPath(t *testing.T) {
 	if path == "" {
 		t.Fatal("SocketPath returned empty string")
 	}
-	expected := fmt.Sprintf("md-preview-cli-%d.sock", os.Getuid())
+	expected := fmt.Sprintf("mdp-%d.sock", os.Getuid())
 	if filepath.Base(path) != expected {
 		t.Errorf("unexpected socket filename: got %s, want %s", filepath.Base(path), expected)
 	}

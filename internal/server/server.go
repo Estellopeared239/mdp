@@ -11,7 +11,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/mxcoppell/md-preview-cli/web"
+	"github.com/mxcoppell/mdp/web"
 )
 
 // TOCEntry represents a heading in the table of contents.
@@ -39,7 +39,7 @@ type Config struct {
 	DisableAutoShutdown bool // In host mode, the host manages window lifecycle
 }
 
-// Server is the HTTP server for md-preview-cli.
+// Server is the HTTP server for mdp.
 type Server struct {
 	cfg        Config
 	mu         sync.RWMutex
@@ -96,7 +96,7 @@ func (s *Server) Start(ctx context.Context) (string, error) {
 	go func() {
 		defer close(s.done)
 		if err := s.srv.Serve(ln); err != nil && err != http.ErrServerClosed {
-			fmt.Printf("md-preview-cli: server error: %v\n", err)
+			fmt.Printf("mdp: server error: %v\n", err)
 		}
 	}()
 

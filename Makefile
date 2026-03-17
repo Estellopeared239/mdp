@@ -1,13 +1,13 @@
-BINARY    := md-preview-cli
+BINARY    := mdp
 BUILD_DIR := bin
 VERSION   := $(shell git describe --tags 2>/dev/null || git rev-parse --short HEAD)
-LDFLAGS   := -X github.com/mxcoppell/md-preview-cli/internal/version.Version=$(VERSION)
+LDFLAGS   := -X github.com/mxcoppell/mdp/internal/version.Version=$(VERSION)
 
 .PHONY: build release clean test deps
 
 ## Development build — includes debug symbols, version set to "dev"
 build:
-	go build -o $(BUILD_DIR)/$(BINARY) ./cmd/md-preview-cli
+	go build -o $(BUILD_DIR)/$(BINARY) ./cmd/mdp
 
 ## Release build — stripped symbols, version injected from git
 release:

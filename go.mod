@@ -1,4 +1,4 @@
-module github.com/mxcoppell/md-preview-cli
+module github.com/mxcoppell/mdp
 
 go 1.24.0
 

@@ -1,4 +1,4 @@
-# md-preview-cli
+# mdp
 
 A CLI tool that renders markdown files in a native frameless window. Designed for terminal-only agents like Claude Code.
 
@@ -9,7 +9,7 @@ A CLI tool that renders markdown files in a native frameless window. Designed fo
 - **Multi-window host**: First invocation spawns a persistent host process (`--internal-host`). Subsequent invocations join via IPC socket, opening new windows in the same process. The host manages all windows, the dock icon, and the NSApp event loop. IPC server uses try-listen-first to prevent race conditions when two CLIs spawn simultaneously.
 - **CLI output**: Every invocation prints `Previewing <filename>` to stdout on success (or `(reused)` if window already open). Agents depend on this output.
 - **File dedup**: Same file cannot open twice. FilePaths are normalized via `filepath.Abs` + `filepath.EvalSymlinks`. Stdin is exempt (always creates new window).
-- **Socket isolation**: IPC socket includes UID in filename (`md-preview-cli-<uid>.sock`) to prevent multi-user collision.
+- **Socket isolation**: IPC socket includes UID in filename (`mdp-<uid>.sock`) to prevent multi-user collision.
 - **Rendering**: Server-side Goldmark (CommonMark + GFM) + Chroma syntax highlighting
 - **Client-side**: KaTeX (math) and Mermaid.js (diagrams) lazy-loaded only when present
 - **Single binary**: All HTML/CSS/JS/fonts embedded via `go:embed`
@@ -39,8 +39,8 @@ make build
 make release
 
 # Run
-./bin/md-preview-cli testdata/full-spec.md
-echo "# Hello" | ./bin/md-preview-cli
+./bin/mdp testdata/full-spec.md
+echo "# Hello" | ./bin/mdp
 ```
 
 ## Testing

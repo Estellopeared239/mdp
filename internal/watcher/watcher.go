@@ -83,7 +83,7 @@ func (fw *FileWatcher) Start(ctx context.Context) error {
 			if !ok {
 				return nil
 			}
-			fmt.Fprintf(os.Stderr, "md-preview-cli: watcher error: %v\n", err)
+			fmt.Fprintf(os.Stderr, "mdp: watcher error: %v\n", err)
 		}
 	}
 }

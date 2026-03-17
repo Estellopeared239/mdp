@@ -1,9 +1,9 @@
 ---
-name: md-preview-cli
+name: mdp
 description: Preview, render, display, or show markdown files in a native frameless window — supports stdin fire-and-forget, live file preview with reload, TOC sidebar, search, math, and diagrams
 ---
 
-# md-preview-cli
+# mdp
 
 Preview markdown files in a native frameless macOS window. Fire-and-forget from the terminal.
 
@@ -11,17 +11,17 @@ Preview markdown files in a native frameless macOS window. Fire-and-forget from 
 
 ```bash
 # File preview with live reload
-md-preview-cli README.md
+mdp README.md
 
 # Pipe from stdin
-cat doc.md | md-preview-cli
+cat doc.md | mdp
 
 # Multiple files
-md-preview-cli a.md b.md
+mdp a.md b.md
 
 # With options
-md-preview-cli --theme dark --toc README.md
-md-preview-cli --browser README.md  # open in system browser
+mdp --theme dark --toc README.md
+mdp --browser README.md  # open in system browser
 ```
 
 ## Keyboard Shortcuts

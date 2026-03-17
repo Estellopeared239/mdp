@@ -1,4 +1,4 @@
-// md-preview-cli frontend
+// mdp frontend
 (function() {
     'use strict';
 
@@ -40,14 +40,14 @@
     // ─── Theme ────────────────────────────────────────────────
     var themeOrder = ['system', 'light', 'dark'];
     var currentThemeIndex = themeOrder.indexOf(
-        localStorage.getItem('md-preview-cli-theme') || config.theme
+        localStorage.getItem('mdp-theme') || config.theme
     );
     if (currentThemeIndex === -1) currentThemeIndex = 0;
 
     function applyTheme() {
         var theme = themeOrder[currentThemeIndex];
         document.documentElement.setAttribute('data-theme', theme);
-        localStorage.setItem('md-preview-cli-theme', theme);
+        localStorage.setItem('mdp-theme', theme);
     }
 
     function getEffectiveThemeForIndex(idx) {

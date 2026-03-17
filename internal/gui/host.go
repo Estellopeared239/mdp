@@ -12,10 +12,10 @@ import (
 
 	webview "github.com/webview/webview_go"
 
-	"github.com/mxcoppell/md-preview-cli/internal/ipc"
-	"github.com/mxcoppell/md-preview-cli/internal/renderer"
-	"github.com/mxcoppell/md-preview-cli/internal/server"
-	"github.com/mxcoppell/md-preview-cli/internal/watcher"
+	"github.com/mxcoppell/mdp/internal/ipc"
+	"github.com/mxcoppell/mdp/internal/renderer"
+	"github.com/mxcoppell/mdp/internal/server"
+	"github.com/mxcoppell/mdp/internal/watcher"
 )
 
 // activeHost is the package-level host reference needed by CGO callbacks.
@@ -49,7 +49,7 @@ type WindowEntry struct {
 // the NSApp event loop.
 func RunHost(cfgPath string) error {
 	// Clean up stale config temp files older than 5 minutes
-	matches, _ := filepath.Glob(filepath.Join(os.TempDir(), "md-preview-cli-gui-*.json"))
+	matches, _ := filepath.Glob(filepath.Join(os.TempDir(), "mdp-gui-*.json"))
 	for _, m := range matches {
 		if info, err := os.Stat(m); err == nil && time.Since(info.ModTime()) > 5*time.Minute {
 			os.Remove(m)
@@ -106,7 +106,7 @@ func RunHost(cfgPath string) error {
 
 	// Cleanup
 	if h.verbose {
-		fmt.Fprintf(os.Stderr, "md-preview-cli: shutting down\n")
+		fmt.Fprintf(os.Stderr, "mdp: shutting down\n")
 	}
 	ipcSrv.Close()
 	h.shutdownAllServers()
@@ -214,7 +214,7 @@ func (h *Host) createWindow(cfg Config) (string, error) {
 	}
 	url := fmt.Sprintf("http://%s", addr)
 	if h.verbose {
-		fmt.Fprintf(os.Stderr, "md-preview-cli: listening on %s (%s)\n", url, cfg.Filename)
+		fmt.Fprintf(os.Stderr, "mdp: listening on %s (%s)\n", url, cfg.Filename)
 	}
 
 	// Start file watchers
@@ -224,7 +224,7 @@ func (h *Host) createWindow(cfg Config) (string, error) {
 	w := webview.New(false)
 	hideWindowOffscreen(w.Window())
 
-	title := cfg.Filename + " — md-preview-cli"
+	title := cfg.Filename + " — mdp"
 	w.SetTitle(title)
 	w.SetSize(980, 1270, webview.HintNone)
 
@@ -390,7 +390,7 @@ func (h *Host) WindowList() []WindowEntry {
 func (h *Host) OpenFile(path string) {
 	absPath, err := filepath.Abs(path)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "md-preview-cli: resolve path: %v\n", err)
+		fmt.Fprintf(os.Stderr, "mdp: resolve path: %v\n", err)
 		return
 	}
 	resolved, err := filepath.EvalSymlinks(absPath)
@@ -411,7 +411,7 @@ func (h *Host) OpenFile(path string) {
 
 	data, err := os.ReadFile(resolved)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "md-preview-cli: read file: %v\n", err)
+		fmt.Fprintf(os.Stderr, "mdp: read file: %v\n", err)
 		return
 	}
 
@@ -431,7 +431,7 @@ func (h *Host) OpenFile(path string) {
 
 	h.primaryWV.Dispatch(func() {
 		if _, err := h.createWindow(cfg); err != nil {
-			fmt.Fprintf(os.Stderr, "md-preview-cli: open window: %v\n", err)
+			fmt.Fprintf(os.Stderr, "mdp: open window: %v\n", err)
 		}
 	})
 }
@@ -445,7 +445,7 @@ func startFileWatchersWithCtx(ctx context.Context, cfg Config, srv *server.Serve
 	for _, file := range cfg.WatchFiles {
 		absPath, err := filepath.Abs(file)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "md-preview-cli: resolve path error (%s): %v\n", file, err)
+			fmt.Fprintf(os.Stderr, "mdp: resolve path error (%s): %v\n", file, err)
 			continue
 		}
 
@@ -455,14 +455,14 @@ func startFileWatchersWithCtx(ctx context.Context, cfg Config, srv *server.Serve
 		} else {
 			w, err = watcher.NewFileWatcher(absPath)
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "md-preview-cli: watcher error (%s): %v\n", file, err)
+				fmt.Fprintf(os.Stderr, "mdp: watcher error (%s): %v\n", file, err)
 				continue
 			}
 		}
 
 		go func() {
 			if err := w.Start(ctx); err != nil {
-				fmt.Fprintf(os.Stderr, "md-preview-cli: watcher error: %v\n", err)
+				fmt.Fprintf(os.Stderr, "mdp: watcher error: %v\n", err)
 			}
 		}()
 

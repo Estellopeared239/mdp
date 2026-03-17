@@ -15,7 +15,7 @@ func createWindow(url string) webview.WebView {
 	// Hide IMMEDIATELY — before SetTitle/SetSize/Navigate
 	// can trigger any visible window appearance.
 	hideWindowOffscreen(w.Window())
-	w.SetTitle("md-preview-cli")
+	w.SetTitle("mdp")
 	w.SetSize(980, 1270, webview.HintNone)
 
 	_ = w.Bind("moveWindowBy", func(dx, dy float64) {

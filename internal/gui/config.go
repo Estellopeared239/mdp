@@ -42,7 +42,7 @@ func WriteConfig(cfg Config) (string, error) {
 		return "", fmt.Errorf("marshal config: %w", err)
 	}
 
-	f, err := os.CreateTemp("", "md-preview-cli-gui-*.json")
+	f, err := os.CreateTemp("", "mdp-gui-*.json")
 	if err != nil {
 		return "", fmt.Errorf("create temp file: %w", err)
 	}

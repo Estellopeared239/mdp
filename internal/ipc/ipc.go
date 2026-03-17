@@ -30,7 +30,7 @@ type OpenResponse struct {
 // SocketPath returns the Unix socket path for IPC.
 // The filename includes the UID to prevent collisions between users sharing /tmp.
 func SocketPath() string {
-	return filepath.Join(os.TempDir(), fmt.Sprintf("md-preview-cli-%d.sock", os.Getuid()))
+	return filepath.Join(os.TempDir(), fmt.Sprintf("mdp-%d.sock", os.Getuid()))
 }
 
 // Dial connects to the host process with a timeout.

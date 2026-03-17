@@ -11,10 +11,10 @@ import (
 
 	"golang.org/x/term"
 
-	"github.com/mxcoppell/md-preview-cli/internal/gui"
-	"github.com/mxcoppell/md-preview-cli/internal/ipc"
-	"github.com/mxcoppell/md-preview-cli/internal/renderer"
-	"github.com/mxcoppell/md-preview-cli/internal/version"
+	"github.com/mxcoppell/mdp/internal/gui"
+	"github.com/mxcoppell/mdp/internal/ipc"
+	"github.com/mxcoppell/mdp/internal/renderer"
+	"github.com/mxcoppell/mdp/internal/version"
 )
 
 const maxStdinSize = 10 * 1024 * 1024 // 10MB
@@ -39,12 +39,12 @@ func Execute() int {
 		if err == flag.ErrHelp {
 			return 0
 		}
-		fmt.Fprintf(os.Stderr, "md-preview-cli: error: %v\n", err)
+		fmt.Fprintf(os.Stderr, "mdp: error: %v\n", err)
 		return 1
 	}
 
 	if err := run(cfg); err != nil {
-		fmt.Fprintf(os.Stderr, "md-preview-cli: error: %v\n", err)
+		fmt.Fprintf(os.Stderr, "mdp: error: %v\n", err)
 		return 2
 	}
 	return 0
@@ -54,7 +54,7 @@ func parseFlags(args []string, stdin *os.File) (Config, error) {
 	var cfg Config
 	var showVersion bool
 
-	fs := flag.NewFlagSet("md-preview-cli", flag.ContinueOnError)
+	fs := flag.NewFlagSet("mdp", flag.ContinueOnError)
 	fs.SetOutput(io.Discard)
 
 	fs.IntVar(&cfg.Port, "port", 0, "")
@@ -85,7 +85,7 @@ func parseFlags(args []string, stdin *os.File) (Config, error) {
 	}
 
 	if showVersion {
-		fmt.Fprintf(os.Stdout, "md-preview-cli %s\n", version.Version)
+		fmt.Fprintf(os.Stdout, "mdp %s\n", version.Version)
 		return Config{}, flag.ErrHelp
 	}
 
@@ -249,7 +249,7 @@ func trySendIPC(cfg gui.Config) (ipc.OpenResponse, bool) {
 		return ipc.OpenResponse{}, false
 	}
 	if !resp.OK {
-		fmt.Fprintf(os.Stderr, "md-preview-cli: host error: %s\n", resp.Error)
+		fmt.Fprintf(os.Stderr, "mdp: host error: %s\n", resp.Error)
 		return ipc.OpenResponse{}, false
 	}
 	return resp, true
@@ -324,7 +324,7 @@ func convertTOC(entries []renderer.TOCEntry) []gui.TOCEntry {
 
 func printHelp(w io.Writer) {
 	fmt.Fprint(w, `USAGE:
-    md-preview-cli [FLAGS] [FILE.md ...]
+    mdp [FLAGS] [FILE.md ...]
 
 ARGUMENTS:
     FILE    One or more markdown files (.md, .markdown)
@@ -343,18 +343,18 @@ FLAGS:
     -h, --help            Print help
 
 STDIN:
-    cat README.md | md-preview-cli
-    echo "# Hello World" | md-preview-cli
+    cat README.md | mdp
+    echo "# Hello World" | mdp
 
 AGENT TOOL USAGE:
     Pipe markdown to stdin. The CLI opens a native preview window
     and exits immediately (exit code 0).
 
     Example from an LLM agent:
-        cat README.md | md-preview-cli
+        cat README.md | mdp
 
     For file-based preview with live reload:
-        md-preview-cli README.md
+        mdp README.md
 
 KEYBOARD SHORTCUTS (in preview window):
     j/k         Scroll down/up        n/p  Next/prev heading

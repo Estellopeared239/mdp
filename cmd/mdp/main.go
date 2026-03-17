@@ -5,8 +5,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/mxcoppell/md-preview-cli/cmd"
-	"github.com/mxcoppell/md-preview-cli/internal/gui"
+	"github.com/mxcoppell/mdp/cmd"
+	"github.com/mxcoppell/mdp/internal/gui"
 )
 
 func main() {
@@ -16,7 +16,7 @@ func main() {
 		if strings.HasPrefix(arg, "--internal-host=") {
 			cfgPath := strings.TrimPrefix(arg, "--internal-host=")
 			if err := gui.RunHost(cfgPath); err != nil {
-				fmt.Fprintf(os.Stderr, "md-preview-cli: error: %v\n", err)
+				fmt.Fprintf(os.Stderr, "mdp: error: %v\n", err)
 				os.Exit(2)
 			}
 			return
@@ -25,7 +25,7 @@ func main() {
 		if strings.HasPrefix(arg, "--internal-gui=") {
 			cfgPath := strings.TrimPrefix(arg, "--internal-gui=")
 			if err := gui.Run(cfgPath); err != nil {
-				fmt.Fprintf(os.Stderr, "md-preview-cli: error: %v\n", err)
+				fmt.Fprintf(os.Stderr, "mdp: error: %v\n", err)
 				os.Exit(2)
 			}
 			return

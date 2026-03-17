@@ -80,7 +80,7 @@ func (h *WSHub) removeConn(conn *websocket.Conn) {
 			h.mu.Unlock()
 			if count == 0 {
 				if h.server.cfg.Verbose {
-					fmt.Fprintf(os.Stderr, "md-preview-cli: no clients connected, shutting down\n")
+					fmt.Fprintf(os.Stderr, "mdp: no clients connected, shutting down\n")
 				}
 				h.server.Shutdown()
 			}

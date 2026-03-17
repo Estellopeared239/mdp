@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="assets/dock-icon.png" width="128" height="128" alt="md-preview-cli icon">
+  <img src="assets/dock-icon.png" width="128" height="128" alt="mdp icon">
 </p>
 
-# md-preview-cli
+# mdp
 
 A CLI tool that renders markdown files in a native frameless macOS window. Designed for terminal-only agents like Claude Code.
 
@@ -24,10 +24,10 @@ A CLI tool that renders markdown files in a native frameless macOS window. Desig
 
 ```bash
 brew tap mxcoppell/tap
-brew install md-preview-cli
+brew install mdp
 
 # Upgrade to latest version
-brew update && brew upgrade md-preview-cli
+brew update && brew upgrade mdp
 ```
 
 ### Build from source
@@ -35,29 +35,29 @@ brew update && brew upgrade md-preview-cli
 Requires Go 1.24+ and macOS (CGO + Cocoa).
 
 ```bash
-git clone https://github.com/mxcoppell/md-preview-cli.git
-cd md-preview-cli
+git clone https://github.com/mxcoppell/mdp.git
+cd mdp
 make deps    # download vendored JS dependencies (first time only)
-make build   # debug build → ./bin/md-preview-cli
+make build   # debug build → ./bin/mdp
 ```
 
 ## Usage
 
 ```bash
 # Preview a file with live reload
-md-preview-cli README.md
+mdp README.md
 
 # Preview multiple files (each in its own window)
-md-preview-cli doc1.md doc2.md
+mdp doc1.md doc2.md
 
 # Pipe from stdin
-echo "# Hello World" | md-preview-cli
-cat README.md | md-preview-cli
+echo "# Hello World" | mdp
+cat README.md | mdp
 
 # Options
-md-preview-cli --theme dark README.md
-md-preview-cli --toc README.md
-md-preview-cli --browser README.md    # open in system browser instead
+mdp --theme dark README.md
+mdp --toc README.md
+mdp --browser README.md    # open in system browser instead
 ```
 
 ## Keyboard Shortcuts
